@@ -37,9 +37,6 @@ public class fruit : MonoBehaviour
 
 public class NameList
 {
-    //public string[] fruit;
-    //public string name;
-
     public string action = "get_fruit";
 }
 
