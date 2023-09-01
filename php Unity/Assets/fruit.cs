@@ -28,6 +28,7 @@ public class fruit : MonoBehaviour
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
             FruitResponse response = JsonUtility.FromJson<FruitResponse>(webRequest.downloadHandler.text);
+            Debug.Log(response.fruit[0]);
         }
     }
 }
