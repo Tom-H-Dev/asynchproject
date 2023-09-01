@@ -13,8 +13,8 @@ public class fruit : MonoBehaviour
     {
 
         NameList request = new NameList();
-        request.fruit = new string[] { "peer", "appel", "aardbei" };
-        request.name = new string("Tom");
+
+
         string json = JsonUtility.ToJson(request);
         Debug.Log(json);
 
@@ -27,6 +27,7 @@ public class fruit : MonoBehaviour
         {
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
+            FruitResponse response = JsonUtility.FromJson<FruitResponse>(webRequest.downloadHandler.text);
         }
     }
 }
@@ -34,6 +35,13 @@ public class fruit : MonoBehaviour
 
 public class NameList
 {
+    //public string[] fruit;
+    //public string name;
+
+    public string action = "get_fruit";
+}
+
+public class FruitResponse
+{
     public string[] fruit;
-    public string name;
 }
