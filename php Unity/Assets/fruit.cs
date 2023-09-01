@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
 public class fruit : MonoBehaviour
 {
     string url = "http://127.0.0.1/edsa-asyncserver/";
@@ -28,7 +29,7 @@ public class fruit : MonoBehaviour
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
             FruitResponse response = JsonUtility.FromJson<FruitResponse>(webRequest.downloadHandler.text);
-            Debug.Log(response.fruit[0]);
+            Debug.Log(response.fruit[Random.Range(0, response.fruit.Length)]);
         }
     }
 }
