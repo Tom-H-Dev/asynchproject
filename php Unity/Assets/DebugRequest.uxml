@@ -1,4 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Button text="Send Request" display-tooltip-when-elided="true" enable-rich-text="true" name="Send-Button" style="height: 48px;" />
-    <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="Output-Label" />
+    <ui:ScrollView>
+        <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="Output-Label" />
+    </ui:ScrollView>
 </ui:UXML>
