@@ -1,9 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<engine:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:engine="UnityEngine.UIElements"
-    xmlns:editor="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd"
->
-    
-</engine:UXML>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 0; background-color: rgb(99, 99, 99);">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); height: -582px; min-height: auto;">
+            <ui:TextField picking-mode="Ignore" label="Email" name="EmailTextField" />
+            <ui:TextField picking-mode="Ignore" label="Username" name="UsernameTextField" />
+            <ui:TextField picking-mode="Ignore" label="Password" name="PasswordTextField" password="true" />
+            <ui:Button text="Create Account" display-tooltip-when-elided="true" name="CreateAccountButton" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); height: 61px;" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); height: -529px; min-height: 54px;">
+            <ui:TextField picking-mode="Ignore" label="Email" name="EmailLoginTextField" />
+            <ui:TextField picking-mode="Ignore" label="Password" name="PasswordLoginTextField" password="true" />
+            <ui:Button text="Login" display-tooltip-when-elided="true" name="LoginButton" />
+        </ui:VisualElement>
+        <ui:Label tabindex="-1" display-tooltip-when-elided="true" name="output-label" style="-unity-text-align: upper-center; min-height: 9px; height: 40px;" />
+    </ui:VisualElement>
+</ui:UXML>
