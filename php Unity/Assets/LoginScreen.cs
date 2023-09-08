@@ -16,7 +16,7 @@ public class LoginScreen : MonoBehaviour
     private Label outputLabel;
     private IEnumerator requestAsync, createAccoutnAsync;
     private VisualElement logedInElement;
-    private Button debugGameActionButton;
+    private Button debugGameActionButton, logOutButton;
     private string token;
 
     private void Start()
@@ -42,17 +42,21 @@ public class LoginScreen : MonoBehaviour
         logedInElement = root.Q<VisualElement>("Loged-in-element");
         logedInElement.style.display = DisplayStyle.None;
 
+        //Log out
+        logOutButton = root.Q<Button>("Log-Out");
+        logOutButton.style.display = DisplayStyle.None;
+
+
         //Clicks
         createAccountButton.RegisterCallback<ClickEvent>(evt =>
         {
-            if (createAccoutnAsync == null)
+            if (requestAsync == null)
             {
-                createAccoutnAsync = CreateAccountAsync();
-                StartCoroutine(createAccoutnAsync);
+                requestAsync = CreateAccountAsync();
+                StartCoroutine(requestAsync);
             }
             Debug.Log("het werkt");
         });
-
         loginButton.RegisterCallback<ClickEvent>(evt =>
         {
             if (requestAsync == null)
@@ -61,6 +65,24 @@ public class LoginScreen : MonoBehaviour
                 StartCoroutine(requestAsync);
             }
             Debug.Log("Login Works");
+        });
+        debugGameActionButton.RegisterCallback<ClickEvent>(evt =>
+        {
+            if (requestAsync == null)
+            {
+                requestAsync = GameAsync();
+                StartCoroutine(requestAsync);
+            }
+            Debug.Log("game debug async Works");
+        });
+        logOutButton.RegisterCallback<ClickEvent>(evt =>
+        {
+            if (requestAsync == null)
+            {
+                requestAsync = LogOutAsync();
+                StartCoroutine(requestAsync);
+            }
+            Debug.Log("Log Out");
         });
     }
 
@@ -85,7 +107,7 @@ public class LoginScreen : MonoBehaviour
             CreateAccountResponse response = JsonUtility.FromJson<CreateAccountResponse>(webRequest.downloadHandler.text);
             Debug.Log(response.serverMessage);
         }
-        createAccoutnAsync = null;
+        requestAsync = null;
     }
 
     private IEnumerator LoginAsync()
@@ -109,6 +131,7 @@ public class LoginScreen : MonoBehaviour
             if (response.serverMessage == "Succes")
             {
                 logedInElement.style.display = DisplayStyle.Flex;
+                logOutButton.style.display = DisplayStyle.Flex;
             }
             token = response.token;
             Debug.Log(response.serverMessage);
@@ -133,6 +156,33 @@ public class LoginScreen : MonoBehaviour
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
             GameResponse response = JsonUtility.FromJson<GameResponse>(webRequest.downloadHandler.text);
+            Debug.Log(response.serverMessage);
+        }
+        requestAsync = null;
+    }
+
+    private IEnumerator LogOutAsync()
+    {
+        LogOutRequest request = new();
+        request.token = token;
+
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            LogOutResponse response = JsonUtility.FromJson<LogOutResponse>(webRequest.downloadHandler.text);
+            if (response.serverMessage == "Succes")
+            {
+                logedInElement.style.display = DisplayStyle.None;
+                logOutButton.style.display = DisplayStyle.None;
+            }
             Debug.Log(response.serverMessage);
         }
         requestAsync = null;
@@ -180,6 +230,19 @@ public class GameRequest
 
 [System.Serializable] 
 public class GameResponse
+{
+    public string serverMessage;
+}
+
+[System.Serializable]
+public class LogOutRequest
+{
+    public string action = "logout_action";
+    public string token;
+}
+
+[System.Serializable]
+public class LogOutResponse
 {
     public string serverMessage;
 }

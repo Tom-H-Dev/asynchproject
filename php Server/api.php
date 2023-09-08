@@ -14,6 +14,12 @@ switch($request->action){
     case "login_request":
         Login($request);
         return;
+    case "game_action":
+        GameAction($request);
+        return;
+    case "logout_action":
+        LogOut($request);
+        return;
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -73,7 +79,7 @@ function Login($request){
     if(!password_verify($request->password, $row["hash"])){
         $response->serverMessage = "login_failed";
         echo(json_encode($response));
-        return;
+        return; 
     }
     $token = GetRandomStringUniqid(32);
     $stmt = $conn->prepare("UPDATE users SET token = :token WHERE id = :id");
@@ -90,6 +96,46 @@ function GetRandomStringUniqid($length = 16)
     $string = uniqid(rand());
     $randomString = substr($string, 0, $length);
     return $randomString;
+}
+
+function GameAction($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+    //Voer hier alle gameplay acties uit voor de user
+    $response->serverMessage = $row["username"];
+    echo(json_encode($response));
+}
+
+function LogOut($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+    $id = $row["id"];
+    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id");
+    $stmt->bindValue(":id", $id);
+    $stmt->execute();
+
+    $response->serverMessage = "Succes";
+    echo(json_encode($response));
 }
 
 ?>
