@@ -60,15 +60,36 @@ function Login($request){
     global $response;
     require_once("connect.php");
     $stmt = $conn->prepare("SELECT * from users WHERE email = :email");
-    $stmt->bindParam(":email", $response->email);
+    $stmt->bindParam(":email", $request->email);
     $stmt->execute();
-    if ($stmt->fetchColumn() == 0){
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == false){
         $response->serverMessage = "Email_not_found";
         echo(json_encode($response));
         return;     
     }
+    $id = $row["id"];
+    if(!password_verify($request->password, $row["hash"])){
+        $response->serverMessage = "login_failed";
+        echo(json_encode($response));
+        return;
+    }
+    $token = GetRandomStringUniqid(32);
+    $stmt = $conn->prepare("UPDATE users SET token = :token WHERE id = :id");
+    $stmt->bindValue(":token", $token);
+    $stmt->bindValue(":id", $id);
+    $stmt->execute();
+    $response->token = $token;
+    $response->serverMessage = "Succes";
+    echo(json_encode($response));
+}
 
-    
+function GetRandomStringUniqid($length = 16)
+{
+    $string = uniqid(rand());
+    $randomString = substr($string, 0, $length);
+    return $randomString;
 }
 
 ?>

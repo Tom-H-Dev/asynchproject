@@ -12,6 +12,9 @@
             <ui:TextField picking-mode="Ignore" label="Password" name="PasswordLoginTextField" password="true" />
             <ui:Button text="Login" display-tooltip-when-elided="true" name="LoginButton" />
         </ui:VisualElement>
+        <ui:VisualElement name="Loged-in-element" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); height: 40px;">
+            <ui:Button text="Debug Game Action" display-tooltip-when-elided="true" name="Game-Action-Button" />
+        </ui:VisualElement>
         <ui:Label tabindex="-1" display-tooltip-when-elided="true" name="output-label" style="-unity-text-align: upper-center; min-height: 9px; height: 40px;" />
     </ui:VisualElement>
 </ui:UXML>

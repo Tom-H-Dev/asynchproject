@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,10 @@ public class LoginScreen : MonoBehaviour
     private TextField createEmailText, createPasswordText, createUsernameText, loginEmailText, loginPasswordText;
     private Button createAccountButton, loginButton;
     private Label outputLabel;
-    private IEnumerator requestAsync;
+    private IEnumerator requestAsync, createAccoutnAsync;
+    private VisualElement logedInElement;
+    private Button debugGameActionButton;
+    private string token;
 
     private void Start()
     {
@@ -33,15 +37,18 @@ public class LoginScreen : MonoBehaviour
         //Output
         outputLabel = root.Q<Label>("output-label");
 
-        
+        //Debug
+        debugGameActionButton = root.Q<Button>("Game-Action-Button");
+        logedInElement = root.Q<VisualElement>("Loged-in-element");
+        logedInElement.style.display = DisplayStyle.None;
 
         //Clicks
         createAccountButton.RegisterCallback<ClickEvent>(evt =>
         {
-            if (requestAsync == null)
+            if (createAccoutnAsync == null)
             {
-                requestAsync = CreateAccountAsync();
-                StartCoroutine(requestAsync);
+                createAccoutnAsync = CreateAccountAsync();
+                StartCoroutine(createAccoutnAsync);
             }
             Debug.Log("het werkt");
         });
@@ -78,7 +85,7 @@ public class LoginScreen : MonoBehaviour
             CreateAccountResponse response = JsonUtility.FromJson<CreateAccountResponse>(webRequest.downloadHandler.text);
             Debug.Log(response.serverMessage);
         }
-        requestAsync = null;
+        createAccoutnAsync = null;
     }
 
     private IEnumerator LoginAsync()
@@ -99,6 +106,33 @@ public class LoginScreen : MonoBehaviour
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
             LoginResponse response = JsonUtility.FromJson<LoginResponse>(webRequest.downloadHandler.text);
+            if (response.serverMessage == "Succes")
+            {
+                logedInElement.style.display = DisplayStyle.Flex;
+            }
+            token = response.token;
+            Debug.Log(response.serverMessage);
+        }
+        requestAsync = null;
+    }
+
+    private IEnumerator GameAsync()
+    {
+        GameRequest request = new();
+        request.token = token;
+
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            GameResponse response = JsonUtility.FromJson<GameResponse>(webRequest.downloadHandler.text);
             Debug.Log(response.serverMessage);
         }
         requestAsync = null;
@@ -135,4 +169,17 @@ public class LoginResponse
 {
     public string serverMessage;
     public string token;
+}
+
+[System.Serializable]
+public class GameRequest
+{
+    public string action = "game_action";
+    public string token;
+}
+
+[System.Serializable] 
+public class GameResponse
+{
+    public string serverMessage;
 }
