@@ -11,6 +11,12 @@ switch($request->action){
     case "create_account":
         CreateAccount($request);
         return;
+    case "login_request":
+        Login($request);
+        return;
+    default:
+        $response->serverMessage = "No valid server action";
+        echo(json_encode($response));
 }
 
 function CreateAccount($request){
@@ -48,6 +54,21 @@ function CreateAccount($request){
 
     $response->serverMessage = "Succes";
     echo(json_encode($response));
+}
+
+function Login($request){
+    global $response;
+    require_once("connect.php");
+    $stmt = $conn->prepare("SELECT * from users WHERE email = :email");
+    $stmt->bindParam(":email", $response->email);
+    $stmt->execute();
+    if ($stmt->fetchColumn() == 0){
+        $response->serverMessage = "Email_not_found";
+        echo(json_encode($response));
+        return;     
+    }
+
+    
 }
 
 ?>

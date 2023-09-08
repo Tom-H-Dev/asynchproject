@@ -13,7 +13,7 @@ public class LoginScreen : MonoBehaviour
     private TextField createEmailText, createPasswordText, createUsernameText, loginEmailText, loginPasswordText;
     private Button createAccountButton, loginButton;
     private Label outputLabel;
-    private IEnumerator createAccountAsync;
+    private IEnumerator requestAsync;
 
     private void Start()
     {
@@ -38,17 +38,22 @@ public class LoginScreen : MonoBehaviour
         //Clicks
         createAccountButton.RegisterCallback<ClickEvent>(evt =>
         {
-            if (createAccountAsync == null)
+            if (requestAsync == null)
             {
-                createAccountAsync = CreateAccountAsync();
-                StartCoroutine(createAccountAsync);
+                requestAsync = CreateAccountAsync();
+                StartCoroutine(requestAsync);
             }
             Debug.Log("het werkt");
         });
 
         loginButton.RegisterCallback<ClickEvent>(evt =>
         {
-
+            if (requestAsync == null)
+            {
+                requestAsync = LoginAsync();
+                StartCoroutine(requestAsync);
+            }
+            Debug.Log("Login Works");
         });
     }
 
@@ -73,7 +78,30 @@ public class LoginScreen : MonoBehaviour
             CreateAccountResponse response = JsonUtility.FromJson<CreateAccountResponse>(webRequest.downloadHandler.text);
             Debug.Log(response.serverMessage);
         }
-        createAccountAsync = null;
+        requestAsync = null;
+    }
+
+    private IEnumerator LoginAsync()
+    {
+        LoginRequest request = new();
+        request.email = loginEmailText.text;
+        request.password = loginPasswordText.text;
+
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            LoginResponse response = JsonUtility.FromJson<LoginResponse>(webRequest.downloadHandler.text);
+            Debug.Log(response.serverMessage);
+        }
+        requestAsync = null;
     }
 
 }
@@ -92,4 +120,19 @@ public class CreateAccountRequest
 public class CreateAccountResponse
 {
     public string serverMessage;
+}
+
+[System.Serializable]
+public class LoginRequest
+{
+    public string action = "login_request";
+    public string email;
+    public string password;
+}
+
+[System.Serializable]
+public class LoginResponse
+{
+    public string serverMessage;
+    public string token;
 }
