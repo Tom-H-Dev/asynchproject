@@ -20,6 +20,12 @@ switch($request->action){
     case "logout_action":
         LogOut($request);
         return;
+    case "Buy_Troops_Request":
+        BuyTroop($request);
+        return;
+    case "Resource_Display":
+        DisplayInfo($request);
+        return;
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -51,10 +57,19 @@ function CreateAccount($request){
     //Password
     $hash = password_hash($request->password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (email, username, hash) VALUES (:email, :username, :hash)");
+    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult)");
     $stmt->bindValue(":email",$request->email);
     $stmt->bindValue(":username", $request->username);
     $stmt->bindValue(":hash", $hash);
+    $stmt->bindValue(":Gold", 5000);
+    $stmt->bindValue(":Lumber", 5000);
+    $stmt->bindValue(":Mana", 5000);
+
+    $stmt->bindValue(":Knight", 0);
+    $stmt->bindValue(":Peasent", 0);
+    $stmt->bindValue(":Archer", 0);
+    $stmt->bindValue(":Mage", 0);
+    $stmt->bindValue(":Catapult", 0);
 
     $stmt->execute();
 
@@ -135,6 +150,135 @@ function LogOut($request){
     $stmt->execute();
 
     $response->serverMessage = "Succes";
+    echo(json_encode($response));
+}
+
+function BuyTroop($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+
+    $id = $row["id"];
+    $dbgold = $row["Gold"];
+    $dblumber = $row["Lumber"];
+    $dbmana = $row["Mana"];
+
+    $peasantPrice = [5,5,0];
+    $knightPrices = [15,5,0];
+    $archerPrice = [10,15,5];
+    $magePrice = [20,0,20];
+    $catapultPrice = [50,50,10];
+
+
+    $goldPrice = $peasantPrice[0] * $request->peasantTroop + $knightPrices[0] * $request->knightTroop + $archerPrice[0] * $request->archerTroop + $magePrice[0] * $request->mageTroop + $catapultPrice[0] * $request->catapultTroop;
+    $lumberPrice = $peasantPrice[1] * $request->peasantTroop + $knightPrices[1] * $request->knightTroop + $archerPrice[1] * $request->archerTroop + $magePrice[1] * $request->mageTroop + $catapultPrice[1] * $request->catapultTroop;
+    $manaPrice = $peasantPrice[2] * $request->peasantTroop + $knightPrices[2] * $request->knightTroop + $archerPrice[2] * $request->archerTroop + $magePrice[2] * $request->mageTroop + $catapultPrice[2] * $request->catapultTroop;
+
+
+    if ($dbgold < $goldPrice){
+        $response->serverMessage = "More Gold Is Required";
+        $response->noresource = "More Gold Is Required";
+        echo(json_encode($response));
+        return;
+    }
+    if ($dblumber < $lumberPrice){
+        $response->serverMessage = "More Lumber Is Required";
+        $response->noresource = "More Gold Is Required";
+        echo(json_encode($response));
+        return;
+    }
+    if ($dbmana < $manaPrice){
+        $response->serverMessage = "More Lumber Is Required";
+        $response->noresource = "More Gold Is Required";
+        echo(json_encode($response));
+        return;
+    }
+
+    $peasant = $row["Peasent"];
+    $knight = $row["Knight"];
+    $archer = $row["Archer"];
+    $mage = $row["Mage"];
+    $catapult = $row["Catapult"];
+
+
+    $stmt = $conn->prepare("UPDATE users SET Peasent = :Peasent, Knight = :Knight, Archer = :Archer, Mage = :Mage, Catapult = :Catapult WHERE token = :token");
+    $stmt->bindValue(":Peasent", $peasant + $request->peasantTroop);
+    $stmt->bindValue(":Knight", $knight + $request->knightTroop);
+    $stmt->bindValue(":Archer", $archer + $request->archerTroop);
+    $stmt->bindValue(":Mage", $mage + $request->mageTroop);
+    $stmt->bindValue(":Catapult", $catapult + $request->catapultTroop);
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+    
+    $stmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana WHERE token = :token");
+    $stmt->bindValue(":Gold", $dbgold - $goldCost);
+    $stmt->bindValue(":Lumber", $dblumber - $lumberCost);
+    $stmt->bindValue(":Mana", $dbmana - $manaCost);
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $response->peasant = $peasant;
+    $response->knight = $knight;
+    $response->archer = $archer;
+    $response->mage = $mage;
+    $response->catapult = $catapult;
+    $response->gold = $dbgold;
+    $response->lumber = $dblumber;
+    $response->mana = $dbmana;
+
+    $response->serverMessage = "Troops bought!";
+    $response->debug = $dbgold . " " . $goldCost;
+    echo(json_encode($response));
+}
+
+function DisplayInfo($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+    $id = $row["id"];
+    $dbgold = $row["Gold"];
+    $dblumber = $row["Lumber"];
+    $dbmana = $row["Mana"];
+
+    $peasant = $row["Peasent"];
+    $knight = $row["Knight"];
+    $archer = $row["Archer"];
+    $mage = $row["Mage"];
+    $catapult = $row["Catapult"];
+
+    $response->peasant = $peasant;
+    $response->knight = $knight;
+    $response->archer = $archer;
+    $response->mage = $mage;
+    $response->catapult = $catapult;
+    $response->gold = $dbgold;
+    $response->lumber = $dblumber;
+    $response->mana = $dbmana;
+
+    $response->serverMessage = "Info displayed";
     echo(json_encode($response));
 }
 
