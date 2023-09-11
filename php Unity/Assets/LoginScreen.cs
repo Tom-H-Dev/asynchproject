@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class LoginScreen : MonoBehaviour
@@ -13,8 +14,7 @@ public class LoginScreen : MonoBehaviour
     private VisualElement root;
     private TextField createEmailText, createPasswordText, createUsernameText, loginEmailText, loginPasswordText;
     private Button createAccountButton, loginButton;
-    private Label outputLabel;
-    private IEnumerator requestAsync, createAccoutnAsync;
+    private IEnumerator requestAsync;
     private VisualElement logedInElement;
     private Button debugGameActionButton, logOutButton;
     private string token;
@@ -33,9 +33,6 @@ public class LoginScreen : MonoBehaviour
         loginEmailText = root.Q<TextField>("EmailLoginTextField");
         loginPasswordText = root.Q<TextField>("PasswordLoginTextField");
         loginButton = root.Q<Button>("LoginButton");
-
-        //Output
-        outputLabel = root.Q<Label>("output-label");
 
         //Debug
         debugGameActionButton = root.Q<Button>("Game-Action-Button");
@@ -130,8 +127,9 @@ public class LoginScreen : MonoBehaviour
             LoginResponse response = JsonUtility.FromJson<LoginResponse>(webRequest.downloadHandler.text);
             if (response.serverMessage == "Succes")
             {
-                logedInElement.style.display = DisplayStyle.Flex;
-                logOutButton.style.display = DisplayStyle.Flex;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                //logedInElement.style.display = DisplayStyle.Flex;
+                //logOutButton.style.display = DisplayStyle.Flex;
             }
             token = response.token;
             Debug.Log(response.serverMessage);
