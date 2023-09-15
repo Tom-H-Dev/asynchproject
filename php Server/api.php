@@ -26,6 +26,8 @@ switch($request->action){
     case "Resource_Display":
         DisplayInfo($request);
         return;
+    case "update_resource":
+        UpdateResources($request);
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -57,7 +59,7 @@ function CreateAccount($request){
     //Password
     $hash = password_hash($request->password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult)");
+    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult, goldIncome, lumberIncome, manaIncome) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult, :goldIncome, :lumberIncome, :manaIncome)");
     $stmt->bindValue(":email",$request->email);
     $stmt->bindValue(":username", $request->username);
     $stmt->bindValue(":hash", $hash);
@@ -70,6 +72,10 @@ function CreateAccount($request){
     $stmt->bindValue(":Archer", 0);
     $stmt->bindValue(":Mage", 0);
     $stmt->bindValue(":Catapult", 0);
+
+    $stmt->bindValue(":goldIncome", 1);
+    $stmt->bindValue(":lumberIncome", 1);
+    $stmt->bindValue(":manaIncome", 1);
 
     $stmt->execute();
 
@@ -282,4 +288,46 @@ function DisplayInfo($request){
     echo(json_encode($response));
 }
 
+
+function CalculateAmountTimeOffline(){
+    //$lastupdate = //time from db;
+    $deltaTime = time() - $lastupdate;
+    $tick = 5; // the amount of seconds 
+    $ticksGainedWhileOffline = floor($deltaTime / $tick);
+    $newLastUpdate = $lastupdate + ($tick * $ticksGainedWhileOffline);
+}
+
+function UpdateResources($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+    $goldIncome = $row["goldIncome"];
+    $lumerIncome = $row["lumberIncome"];
+    $manaIncome = $row["manaIncome"];
+    $id = $row["id"];
+
+    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome, lumberIncome = :lumberIncome, manaIncome = :manaIncome");
+    $stmt->bindValue(":id", $id);
+    $stmt->bindValue(":goldIncome", $goldIncome);
+    $stmt->bindValue(":lumberIncome", $lumerIncome);
+    $stmt->bindValue(":manaIncome", $manaIncome);
+    $stmt->execute();
+
+    $response->serverMessage = "Resource Gained";
+    $response->goldIncome = $goldIncome;
+    $response->lumberIncome = $lumberIncome;
+    $response->manaIncome = $manaIncome;
+    echo(json_encode($response));
+}
 ?>
