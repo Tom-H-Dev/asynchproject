@@ -31,20 +31,23 @@ public class ResourceGenerators : MonoBehaviour
 
     public void ResourceIncrease()
     {
-        if (requestAsync == null)
-        {
-            requestAsync = UpdateResource();
-            StartCoroutine(requestAsync);
-        }
+        //send resources to the db
+
+        //if (requestAsync == null)
+        //{
+        //    requestAsync = UpdateResource();
+        //    StartCoroutine(requestAsync);
+        //}
     }
 
-    private IEnumerator UpdateResource()
+    private IEnumerator UpdateResource(string gen)
     {
-        UpdateResourcesRequest request = new();
+        UpgradeResourcesRequest request = new();
         request.token = GameManager.instance.token;
         request.goldIncome = _goldIncome;
         request.lumberIncome = _lumberIncome;
         request.manaIncome = _manaIncome;
+        request.generatorType = gen;
 
         List<IMultipartFormSection> formData = new();
         string json = JsonUtility.ToJson(request);
@@ -57,7 +60,7 @@ public class ResourceGenerators : MonoBehaviour
         {
             yield return webRequest.SendWebRequest();
             Debug.Log(webRequest.downloadHandler.text);
-            UpdateResourceResponse response = JsonUtility.FromJson<UpdateResourceResponse>(webRequest.downloadHandler.text);
+            UpgradeResourceResponse response = JsonUtility.FromJson<UpgradeResourceResponse>(webRequest.downloadHandler.text);
             if (response.serverMessage == "Troops bought!")
             {
 
@@ -87,17 +90,18 @@ public class GatherGeneratorStatsResponse
 }
 
 [System.Serializable]
-public class UpdateResourcesRequest
+public class UpgradeResourcesRequest
 {
-    public string action = "update_resource";
+    public string action = "upgrade_gold_mine";
     public string token;
+    public string generatorType;
     public int goldIncome;
     public int lumberIncome;
     public int manaIncome;
 }
 
 [System.Serializable]
-public class UpdateResourceResponse
+public class UpgradeResourceResponse
 {
     public string serverMessage;
     public int goldIncome;

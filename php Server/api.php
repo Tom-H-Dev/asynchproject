@@ -26,8 +26,8 @@ switch($request->action){
     case "Resource_Display":
         DisplayInfo($request);
         return;
-    case "update_resource":
-        UpdateResources($request);
+    case "upgrade_gold_mine":
+        UpgradeGenerator($request);
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -297,7 +297,7 @@ function CalculateAmountTimeOffline(){
     $newLastUpdate = $lastupdate + ($tick * $ticksGainedWhileOffline);
 }
 
-function UpdateResources($request){
+function UpgradeGenerator($request){
     global $response;
     require_once("connect.php");
 
@@ -312,22 +312,18 @@ function UpdateResources($request){
         return;
     }
 
+    $upgradePrice = [0];
     $goldIncome = $row["goldIncome"];
-    $lumerIncome = $row["lumberIncome"];
-    $manaIncome = $row["manaIncome"];
+    $goldCost = $row["goldUpgradeCost"]
     $id = $row["id"];
 
-    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome, lumberIncome = :lumberIncome, manaIncome = :manaIncome");
+    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome");
     $stmt->bindValue(":id", $id);
     $stmt->bindValue(":goldIncome", $goldIncome);
-    $stmt->bindValue(":lumberIncome", $lumerIncome);
-    $stmt->bindValue(":manaIncome", $manaIncome);
     $stmt->execute();
 
     $response->serverMessage = "Resource Gained";
     $response->goldIncome = $goldIncome;
-    $response->lumberIncome = $lumberIncome;
-    $response->manaIncome = $manaIncome;
     echo(json_encode($response));
 }
 ?>
