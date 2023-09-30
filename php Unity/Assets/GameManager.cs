@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
     public const string url = "http://127.0.0.1/edsa-asyncserver/api.php";
     public string token;
 
+    public int lastTickTimeStamp;
+
     private void Awake()
     {
         if (instance != null)

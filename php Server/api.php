@@ -26,8 +26,9 @@ switch($request->action){
     case "Resource_Display":
         DisplayInfo($request);
         return;
-    case "upgrade_gold_mine":
-        UpgradeGenerator($request);
+    case "update_resource":
+        UpdateResource($request);
+        return;
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -59,7 +60,7 @@ function CreateAccount($request){
     //Password
     $hash = password_hash($request->password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult, goldIncome, lumberIncome, manaIncome) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult, :goldIncome, :lumberIncome, :manaIncome)");
+    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult, goldIncome, lumberIncome, manaIncome, lastOnline) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult, :goldIncome, :lumberIncome, :manaIncome, :lastOnline)");
     $stmt->bindValue(":email",$request->email);
     $stmt->bindValue(":username", $request->username);
     $stmt->bindValue(":hash", $hash);
@@ -76,6 +77,7 @@ function CreateAccount($request){
     $stmt->bindValue(":goldIncome", 1);
     $stmt->bindValue(":lumberIncome", 1);
     $stmt->bindValue(":manaIncome", 1);
+    $stmt->bindValue(":lastOnline", time());
 
     $stmt->execute();
 
@@ -297,7 +299,37 @@ function CalculateAmountTimeOffline(){
     $newLastUpdate = $lastupdate + ($tick * $ticksGainedWhileOffline);
 }
 
-function UpgradeGenerator($request){
+//function UpgradeGenerator($request){
+//    global $response;
+//    require_once("connect.php");
+//
+//  $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+//  $stmt->bindValue(":token", $request->token);
+//  $stmt->execute();
+//
+//  $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+//  if ($row == null){
+//      $response->serverMessage = "token not found";
+//      echo(json_encode($response));
+//      return;
+//  }
+//
+//  $upgradePrice = [0];
+//  $goldIncome = $row["goldIncome"];
+//  $goldCost = $row["goldUpgradeCost"]
+//  $id = $row["id"];
+//
+//  $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome");
+//  $stmt->bindValue(":id", $id);
+//  $stmt->bindValue(":goldIncome", $goldIncome);
+//  $stmt->execute();
+//
+//  $response->serverMessage = "Resource Gained";
+//  $response->goldIncome = $goldIncome;
+//  echo(json_encode($response));
+//}
+
+function UpdateResource($request){
     global $response;
     require_once("connect.php");
 
@@ -312,18 +344,52 @@ function UpgradeGenerator($request){
         return;
     }
 
-    $upgradePrice = [0];
-    $goldIncome = $row["goldIncome"];
-    $goldCost = $row["goldUpgradeCost"]
     $id = $row["id"];
+    $lastOnline = $row["lastOnline"];
 
-    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome");
+    $gold = $row["Gold"];
+    $goldIncome = $row["goldIncome"];
+    $lumber = $row["Lumber"];
+    $lumberIncome = $row["lumberIncome"];
+    $mana = $row["Mana"];
+    $manaIncome = $row["manaIncome"];
+
+    if ($request->lastOnlineTick != null){
+        $deltaTime = time() - $lastupdate;
+        $tick = 5; // the amount of seconds 
+        $ticksGainedWhileOffline = floor($deltaTime / $tick);
+        $response->serverMessage = $ticksGainedWhileOffline;
+        
+        
+        //check what the last tick online was
+        //Check if the last tick was less than 1 hour
+        //if more > 1h add income is 1h income
+        //else add income from last tick
+        //return the new last tick
+        $gold = $gold + $goldIncome;
+        $lumber = $lumber + $lumberIncome;
+        $mana = $mana + $manaIncome;
+    }
+    else {
+        $response->serverMessage = "last tick is null";
+        echo(json_encode($response));
+        return;
+    }
+
+
+
+    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, Gold = :Gold, Lumber =:Lumber, Mana = :Mana, lastOnline = :lastOnline");
     $stmt->bindValue(":id", $id);
-    $stmt->bindValue(":goldIncome", $goldIncome);
+    $stmt->bindValue(":Gold", $gold);
+    $stmt->bindValue(":Lumber", $lumber);
+    $stmt->bindValue(":Mana", $mana);
+    $stmt->bindValue(":lastOnline", time());
     $stmt->execute();
 
-    $response->serverMessage = "Resource Gained";
-    $response->goldIncome = $goldIncome;
+    //return the number of gold, lumber and mana in db
+    
+    $response->serverMessage = "Resource Update!";
+    $response->lastOnlineTick = time();
     echo(json_encode($response));
 }
 ?>

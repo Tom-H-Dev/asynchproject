@@ -13,7 +13,7 @@ public class ResourceGenerators : MonoBehaviour
 
     private float tick = 5;
     private bool isGathering;
-    private IEnumerator timer, requestAsync;
+    private IEnumerator timer, requestAsync, resourceGenerator;
     private int _goldIncome, _lumberIncome, _manaIncome;
 
     private void Start()
@@ -33,14 +33,41 @@ public class ResourceGenerators : MonoBehaviour
     {
         //send resources to the db
 
-        //if (requestAsync == null)
-        //{
-        //    requestAsync = UpdateResource();
-        //    StartCoroutine(requestAsync);
-        //}
+        if (resourceGenerator == null)
+        {
+            resourceGenerator = UpdateResource();
+            StartCoroutine(resourceGenerator);
+        }
     }
 
-    private IEnumerator UpdateResource(string gen)
+    private IEnumerator UpdateResource()
+    {
+        UpdateResourcesRequest request = new();
+        request.token = GameManager.instance.token;
+        request.lastOnlineTick = GameManager.instance.lastTickTimeStamp;
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+        Debug.Log("REQUEST JSON:\n" + json);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            UpgradeResourceResponse response = JsonUtility.FromJson<UpgradeResourceResponse>(webRequest.downloadHandler.text);
+            if (response.serverMessage == "Resource Update!")
+            {
+
+            }
+            Debug.Log(response.serverMessage);
+        }
+        resourceGenerator = null;
+    }
+
+    private IEnumerator UpgradeResource(string gen)
     {
         UpgradeResourcesRequest request = new();
         request.token = GameManager.instance.token;
@@ -110,4 +137,22 @@ public class UpgradeResourceResponse
     public int goldUpgradePrice;
     public int lumberUpgradePrice;
     public int manaUpgradePrice;
+}
+
+[System.Serializable]
+public class UpdateResourcesRequest
+{
+    public string action = "update_resource";
+    public string token;
+    public int lastOnlineTick;
+}
+
+[System.Serializable]
+public class UpdateResourcesResponse
+{
+    public string serverMessage;
+    public string goldIncome;
+    public string lumberIncome;
+    public string manaIncome;
+    public string lastOnlineTick;
 }
