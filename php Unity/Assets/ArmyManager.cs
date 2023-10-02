@@ -16,7 +16,7 @@ public class ArmyManager : MonoBehaviour
     [Header("Resource info")]
     public TextMeshProUGUI goldAmount;
     public TextMeshProUGUI lumberAmount, manaAmount;
-    private int _gold = 10000, _lumber, _mana;
+    private int _gold, _lumber, _mana;
     [Header("Troop amount")]
     public TextMeshProUGUI peasantAmount;
     public TextMeshProUGUI knightAmount, archerAmount, mageAmount, catapultAmount;

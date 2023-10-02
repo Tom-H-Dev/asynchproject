@@ -299,36 +299,6 @@ function CalculateAmountTimeOffline(){
     $newLastUpdate = $lastupdate + ($tick * $ticksGainedWhileOffline);
 }
 
-//function UpgradeGenerator($request){
-//    global $response;
-//    require_once("connect.php");
-//
-//  $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
-//  $stmt->bindValue(":token", $request->token);
-//  $stmt->execute();
-//
-//  $row = $stmt->fetch(PDO:: FETCH_ASSOC);
-//  if ($row == null){
-//      $response->serverMessage = "token not found";
-//      echo(json_encode($response));
-//      return;
-//  }
-//
-//  $upgradePrice = [0];
-//  $goldIncome = $row["goldIncome"];
-//  $goldCost = $row["goldUpgradeCost"]
-//  $id = $row["id"];
-//
-//  $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, goldIncome = :goldIncome");
-//  $stmt->bindValue(":id", $id);
-//  $stmt->bindValue(":goldIncome", $goldIncome);
-//  $stmt->execute();
-//
-//  $response->serverMessage = "Resource Gained";
-//  $response->goldIncome = $goldIncome;
-//  echo(json_encode($response));
-//}
-
 function UpdateResource($request){
     global $response;
     require_once("connect.php");
@@ -354,21 +324,23 @@ function UpdateResource($request){
     $mana = $row["Mana"];
     $manaIncome = $row["manaIncome"];
 
-    if ($request->lastOnlineTick != null){
-        $deltaTime = time() - $lastupdate;
+    if ($lastOnline != null){
+        $deltaTime = time() - $lastOnline;
         $tick = 5; // the amount of seconds 
         $ticksGainedWhileOffline = floor($deltaTime / $tick);
-        $response->serverMessage = $ticksGainedWhileOffline;
         
-        
-        //check what the last tick online was
-        //Check if the last tick was less than 1 hour
-        //if more > 1h add income is 1h income
-        //else add income from last tick
-        //return the new last tick
-        $gold = $gold + $goldIncome;
-        $lumber = $lumber + $lumberIncome;
-        $mana = $mana + $manaIncome;
+        if ($ticksGainedWhileOffline >= 72){
+            $gold = $gold + $goldIncome * 72;
+            $lumber = $lumber + $lumberIncome * 72;
+            $mana = $mana + $manaIncome * 72;
+            $ticksGainedWhileOffline = 0;
+        }
+        else{
+            $gold = $gold + $goldIncome * $ticksGainedWhileOffline;
+            $lumber = $lumber + $lumberIncome * $ticksGainedWhileOffline;
+            $mana = $mana + $manaIncome * $ticksGainedWhileOffline;
+            $ticksGainedWhileOffline = 0;
+        }
     }
     else {
         $response->serverMessage = "last tick is null";
@@ -378,8 +350,8 @@ function UpdateResource($request){
 
 
 
-    $stmt = $conn->prepare("UPDATE users SET token = null WHERE id = :id, Gold = :Gold, Lumber =:Lumber, Mana = :Mana, lastOnline = :lastOnline");
-    $stmt->bindValue(":id", $id);
+    $stmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana, lastOnline = :lastOnline WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
     $stmt->bindValue(":Gold", $gold);
     $stmt->bindValue(":Lumber", $lumber);
     $stmt->bindValue(":Mana", $mana);
@@ -390,6 +362,9 @@ function UpdateResource($request){
     
     $response->serverMessage = "Resource Update!";
     $response->lastOnlineTick = time();
+    $response->goldIncome = $gold;
+    $response->lumberIncome = $lumber;
+    $response->manaIncome = $mana;
     echo(json_encode($response));
 }
 ?>

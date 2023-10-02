@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,10 @@ using UnityEngine.UI;
 public class ResourceGenerators : MonoBehaviour
 {
     private const string url = "http://127.0.0.1/edsa-asyncserver/api.php";
+
+    [Header("Resource info")]
+    public TextMeshProUGUI goldAmount;
+    public TextMeshProUGUI lumberAmount, manaAmount;
 
     private float tick = 5;
     private bool isGathering;
@@ -24,9 +29,10 @@ public class ResourceGenerators : MonoBehaviour
 
     IEnumerator GeneratorTimer(float l_waitTime)
     {
+        Debug.Log("Starting timer");
         yield return new WaitForSeconds(l_waitTime);
+        Debug.Log("function");
         ResourceIncrease();
-        StartCoroutine(timer);
     }
 
     public void ResourceIncrease()
@@ -42,6 +48,7 @@ public class ResourceGenerators : MonoBehaviour
 
     private IEnumerator UpdateResource()
     {
+        Debug.Log("Updating resource start");
         UpdateResourcesRequest request = new();
         request.token = GameManager.instance.token;
         request.lastOnlineTick = GameManager.instance.lastTickTimeStamp;
@@ -60,40 +67,16 @@ public class ResourceGenerators : MonoBehaviour
             UpgradeResourceResponse response = JsonUtility.FromJson<UpgradeResourceResponse>(webRequest.downloadHandler.text);
             if (response.serverMessage == "Resource Update!")
             {
-
+                goldAmount.text = "Gold: " + response.goldIncome;
+                lumberAmount.text = "Lumber: " + response.lumberIncome;
+                manaAmount.text = "Mana: "+ response.manaIncome;
             }
             Debug.Log(response.serverMessage);
         }
         resourceGenerator = null;
-    }
-
-    private IEnumerator UpgradeResource(string gen)
-    {
-        UpgradeResourcesRequest request = new();
-        request.token = GameManager.instance.token;
-        request.goldIncome = _goldIncome;
-        request.lumberIncome = _lumberIncome;
-        request.manaIncome = _manaIncome;
-        request.generatorType = gen;
-
-        List<IMultipartFormSection> formData = new();
-        string json = JsonUtility.ToJson(request);
-
-        MultipartFormDataSection entery = new("json", json);
-        formData.Add(entery);
-        Debug.Log("REQUEST JSON:\n" + json);
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
-        {
-            yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
-            UpgradeResourceResponse response = JsonUtility.FromJson<UpgradeResourceResponse>(webRequest.downloadHandler.text);
-            if (response.serverMessage == "Troops bought!")
-            {
-
-            }
-        }
-        requestAsync = null;
+        Debug.Log("Updating resource end");
+        Debug.Log(timer);
+        StartCoroutine(GeneratorTimer(tick));
     }
 }
 
