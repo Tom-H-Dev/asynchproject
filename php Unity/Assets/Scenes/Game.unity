@@ -929,7 +929,7 @@ GameObject:
   - component: {fileID: 164783881}
   - component: {fileID: 164783880}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Lumber Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2069,7 +2069,7 @@ GameObject:
   - component: {fileID: 420070905}
   - component: {fileID: 420070904}
   m_Layer: 5
-  m_Name: Building img
+  m_Name: Mana Building img
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2690,7 +2690,7 @@ GameObject:
   - component: {fileID: 503166383}
   - component: {fileID: 503166382}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Gold Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3578,7 +3578,7 @@ GameObject:
   - component: {fileID: 747741011}
   - component: {fileID: 747741010}
   m_Layer: 5
-  m_Name: Income amount
+  m_Name: Lumber Income amount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3985,7 +3985,7 @@ GameObject:
   - component: {fileID: 810402600}
   - component: {fileID: 810402599}
   m_Layer: 5
-  m_Name: Income amount
+  m_Name: Gold Income amount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4121,7 +4121,7 @@ GameObject:
   - component: {fileID: 868088385}
   - component: {fileID: 868088384}
   m_Layer: 5
-  m_Name: Upgrade button
+  m_Name: Lumber Upgrade button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4191,7 +4191,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 868088385}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581678448}
+        m_TargetAssemblyTypeName: ResourceGenerators, Assembly-CSharp
+        m_MethodName: UpgradeResourceButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Lumber
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &868088385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5752,7 +5764,7 @@ GameObject:
   - component: {fileID: 1082000702}
   - component: {fileID: 1082000701}
   m_Layer: 5
-  m_Name: Building img
+  m_Name: Gold Building img
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6236,7 +6248,7 @@ GameObject:
   - component: {fileID: 1104007210}
   - component: {fileID: 1104007209}
   m_Layer: 5
-  m_Name: Upgrade button
+  m_Name: Gold Upgrade button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6306,7 +6318,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1104007210}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581678448}
+        m_TargetAssemblyTypeName: ResourceGenerators, Assembly-CSharp
+        m_MethodName: UpgradeResourceButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Gold
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1104007210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7876,7 +7900,7 @@ GameObject:
   - component: {fileID: 1433433522}
   - component: {fileID: 1433433521}
   m_Layer: 5
-  m_Name: Income amount
+  m_Name: Mana Income amount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8630,6 +8654,12 @@ MonoBehaviour:
   goldAmount: {fileID: 1320608311}
   lumberAmount: {fileID: 1068476847}
   manaAmount: {fileID: 576046195}
+  goldIncomeAmount: {fileID: 810402599}
+  lumberIncomeAmount: {fileID: 747741010}
+  manaIncomeAmount: {fileID: 1433433521}
+  goldUpgradeButton: {fileID: 503166382}
+  lumberUpgradeButton: {fileID: 164783880}
+  manaUpgradeButton: {fileID: 2018439140}
 --- !u!4 &1581678449
 Transform:
   m_ObjectHideFlags: 0
@@ -9047,7 +9077,7 @@ GameObject:
   - component: {fileID: 1650131422}
   - component: {fileID: 1650131421}
   m_Layer: 5
-  m_Name: Upgrade button
+  m_Name: Mana Upgrade button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9117,7 +9147,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1650131422}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581678448}
+        m_TargetAssemblyTypeName: ResourceGenerators, Assembly-CSharp
+        m_MethodName: UpgradeResourceButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Mana
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1650131422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9438,7 +9480,7 @@ GameObject:
   - component: {fileID: 1691140045}
   - component: {fileID: 1691140044}
   m_Layer: 5
-  m_Name: Building img
+  m_Name: Lumber Building img
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10648,7 +10690,7 @@ GameObject:
   - component: {fileID: 2018439141}
   - component: {fileID: 2018439140}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Mana Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

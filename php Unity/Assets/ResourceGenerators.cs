@@ -16,6 +16,11 @@ public class ResourceGenerators : MonoBehaviour
     public TextMeshProUGUI goldAmount;
     public TextMeshProUGUI lumberAmount, manaAmount;
 
+    [Header("Resource Generator Stats")]
+    public TextMeshProUGUI goldIncomeAmount;
+    public TextMeshProUGUI lumberIncomeAmount, manaIncomeAmount;
+    public TextMeshProUGUI goldUpgradeButton, lumberUpgradeButton, manaUpgradeButton;
+
     private float tick = 5;
     private bool isGathering;
     private IEnumerator timer, requestAsync, resourceGenerator;
@@ -78,6 +83,54 @@ public class ResourceGenerators : MonoBehaviour
         Debug.Log(timer);
         StartCoroutine(GeneratorTimer(tick));
     }
+
+
+    public void UpgradeResourceButton(string type)
+    {
+        if (requestAsync == null)
+        {
+            requestAsync = UpgradeResourceGenerator(type);
+            StartCoroutine(requestAsync);
+        }
+    }
+
+    private IEnumerator UpgradeResourceGenerator(string genType)
+    {
+        UpgradeResourcesRequest request = new();
+        request.token = GameManager.instance.token;
+        request.generatorType = genType;
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+        Debug.Log("REQUEST JSON:\n" + json);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            UpgradeResourceResponse response = JsonUtility.FromJson<UpgradeResourceResponse>(webRequest.downloadHandler.text);
+            if (response.serverMessage == "Upgrade!")
+            {
+                goldIncomeAmount.text = "+" + response.goldIncome;
+                lumberIncomeAmount.text = "+" + response.lumberIncome;
+                manaIncomeAmount.text = "+" + response.manaIncome;
+
+                goldUpgradeButton.text = "Upgrade Cost:" + "\n" + response.goldUpgradePrice + " Gold";
+                lumberUpgradeButton.text = "Upgrade Cost:" + "\n" + response.lumberUpgradePrice + " Lumber";
+                manaUpgradeButton.text = "Upgrade Cost:" + "\n" + response.manaUpgradePrice + " Mana";
+
+                goldAmount.text = "Gold: " + response.gold;
+                lumberAmount.text = "Lumber: " + response.lumber;
+                manaAmount.text = "Mana: " + response.mana;
+            }
+            Debug.Log(response.serverMessage);
+        }
+        requestAsync = null;
+
+    }
 }
 
 [System.Serializable]
@@ -102,12 +155,9 @@ public class GatherGeneratorStatsResponse
 [System.Serializable]
 public class UpgradeResourcesRequest
 {
-    public string action = "upgrade_gold_mine";
+    public string action = "upgrade_generator";
     public string token;
     public string generatorType;
-    public int goldIncome;
-    public int lumberIncome;
-    public int manaIncome;
 }
 
 [System.Serializable]
@@ -120,6 +170,9 @@ public class UpgradeResourceResponse
     public int goldUpgradePrice;
     public int lumberUpgradePrice;
     public int manaUpgradePrice;
+    public int gold;
+    public int lumber;
+    public int mana;
 }
 
 [System.Serializable]

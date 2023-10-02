@@ -29,6 +29,9 @@ switch($request->action){
     case "update_resource":
         UpdateResource($request);
         return;
+    case "upgrade_generator":
+        UpgradeGenerator($request);
+        return;    
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -60,13 +63,13 @@ function CreateAccount($request){
     //Password
     $hash = password_hash($request->password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult, goldIncome, lumberIncome, manaIncome, lastOnline) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult, :goldIncome, :lumberIncome, :manaIncome, :lastOnline)");
+    $stmt = $conn->prepare("INSERT INTO users (email, username, hash, Gold, Lumber, Mana, Knight, Peasent, Archer, Mage, Catapult, goldIncome, lumberIncome, manaIncome, lastOnline, goldUpgradeCost, lumberUpgradeCost, manaUpgradeCost) VALUES (:email, :username, :hash, :Gold, :Lumber, :Mana, :Knight, :Peasent, :Archer, :Mage, :Catapult, :goldIncome, :lumberIncome, :manaIncome, :lastOnline, :goldUpgradeCost, :lumberUpgradeCost, :manaUpgradeCost)");
     $stmt->bindValue(":email",$request->email);
     $stmt->bindValue(":username", $request->username);
     $stmt->bindValue(":hash", $hash);
-    $stmt->bindValue(":Gold", 5000);
-    $stmt->bindValue(":Lumber", 5000);
-    $stmt->bindValue(":Mana", 5000);
+    $stmt->bindValue(":Gold", 0);
+    $stmt->bindValue(":Lumber", 0);
+    $stmt->bindValue(":Mana", 0);
 
     $stmt->bindValue(":Knight", 0);
     $stmt->bindValue(":Peasent", 0);
@@ -77,6 +80,9 @@ function CreateAccount($request){
     $stmt->bindValue(":goldIncome", 1);
     $stmt->bindValue(":lumberIncome", 1);
     $stmt->bindValue(":manaIncome", 1);
+    $stmt->bindValue(":goldUpgradeCost", 5);
+    $stmt->bindValue(":lumberUpgradeCost", 5);
+    $stmt->bindValue(":manaUpgradeCost", 5);
     $stmt->bindValue(":lastOnline", time());
 
     $stmt->execute();
@@ -114,8 +120,7 @@ function Login($request){
     echo(json_encode($response));
 }
 
-function GetRandomStringUniqid($length = 16)
-{
+function GetRandomStringUniqid($length = 16){
     $string = uniqid(rand());
     $randomString = substr($string, 0, $length);
     return $randomString;
@@ -365,6 +370,92 @@ function UpdateResource($request){
     $response->goldIncome = $gold;
     $response->lumberIncome = $lumber;
     $response->manaIncome = $mana;
+    echo(json_encode($response));
+}
+
+function UpgradeGenerator($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+    $id = $row["id"];
+
+    $dbgold = $row["Gold"];
+    $dblumber = $row["Lumber"];
+    $dbmana = $row["Mana"];
+    //get the upgrade costs from the database
+    $goldUpgradeCost = $row["goldUpgradeCost"];
+    $lumberUpgradeCost = $row["lumberUpgradeCost"];
+    $manaUpgradeCost = $row["manaUpgradeCost"];
+
+    $goldIncome = $row["goldIncome"];
+    $lumberIncome = $row["lumberIncome"];
+    $manaIncome = $row["manaIncome"];
+
+
+    //check type of gen
+    if ($request->generatorType == "Gold"){
+        if ($dbgold >= $goldUpgradeCost){
+            $dbgold  = $dbgold - $goldUpgradeCost;
+            $goldIncome = $goldIncome + 1;
+            $goldUpgradeCost = $goldUpgradeCost * 2;
+        }
+    }
+    if ($request->generatorType == "Lumber"){
+        if ($dblumber >= $lumberUpgradeCost){
+            $dblumber  = $dblumber - $lumberUpgradeCost;
+            $lumberIncome = $lumberIncome + 1;
+            $lumberUpgradeCost = $lumberUpgradeCost * 2;
+        }
+    }
+    if ($request->generatorType == "Mana"){
+        if ($dbmana >= $manaUpgradeCost){
+            $dbmana  = $dbmana - $manaUpgradeCost;
+            $manaIncome = $manaIncome + 1;
+            $manaUpgradeCost = $manaUpgradeCost * 2;
+        }
+    }
+
+    $stmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana, goldIncome = :goldIncome, lumberIncome = :lumberIncome, manaIncome = :manaIncome, goldUpgradeCost = :goldUpgradeCost, lumberUpgradeCost = :lumberUpgradeCost, manaUpgradeCost = :manaUpgradeCost WHERE token = :token");
+    $stmt->bindValue(":Gold", $dbgold);
+    $stmt->bindValue(":Lumber", $dblumber);
+    $stmt->bindValue(":Mana", $dbmana);
+
+    $stmt->bindValue(":goldUpgradeCost", $goldUpgradeCost);
+    $stmt->bindValue(":lumberUpgradeCost", $lumberUpgradeCost);
+    $stmt->bindValue(":manaUpgradeCost", $manaUpgradeCost);
+
+    $stmt->bindValue(":goldIncome", $goldIncome);
+    $stmt->bindValue(":lumberIncome", $lumberIncome);
+    $stmt->bindValue(":manaIncome", $manaIncome);
+
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+
+    $response->goldIncome = $goldIncome;
+    $response->lumberIncome = $lumberIncome;
+    $response->manaIncome = $manaIncome;
+
+    $response->goldUpgradePrice = $goldUpgradeCost;
+    $response->lumberUpgradePrice = $lumberUpgradeCost;
+    $response->manaUpgradePrice = $manaUpgradeCost;
+
+    $response->gold = $dbgold;
+    $response->lumber = $dblumber;
+    $response->mana = $dbmana;
+
+    $response->serverMessage = "Upgrade!";
     echo(json_encode($response));
 }
 ?>
