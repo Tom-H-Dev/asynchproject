@@ -19,6 +19,11 @@ public class BattleManager : MonoBehaviour
     private string nothing;
 
 
+    private void OnEnable()
+    {
+        
+    }
+
     public void FindNewOpponent()
     {
 
