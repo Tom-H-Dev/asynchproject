@@ -236,23 +236,22 @@ function BuyTroop($request){
     $stmt->execute();
     
     $stmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana WHERE token = :token");
-    $stmt->bindValue(":Gold", $dbgold - $goldCost);
-    $stmt->bindValue(":Lumber", $dblumber - $lumberCost);
-    $stmt->bindValue(":Mana", $dbmana - $manaCost);
+    $stmt->bindValue(":Gold", $dbgold - $goldPrice);
+    $stmt->bindValue(":Lumber", $dblumber - $lumberPrice);
+    $stmt->bindValue(":Mana", $dbmana - $manaPrice);
     $stmt->bindValue(":token", $request->token);
     $stmt->execute();
 
-    $response->peasant = $peasant;
-    $response->knight = $knight;
-    $response->archer = $archer;
-    $response->mage = $mage;
-    $response->catapult = $catapult;
+    $response->peasant = $peasant + $request->peasantTroop;
+    $response->knight = $knight + $request->knightTroop;
+    $response->archer = $archer + $request->archerTroop;
+    $response->mage = $mage + $request->mageTroop;
+    $response->catapult = $catapult + $request->catapultTroop;
     $response->gold = $dbgold;
     $response->lumber = $dblumber;
     $response->mana = $dbmana;
 
     $response->serverMessage = "Troops bought!";
-    $response->debug = $dbgold . " " . $goldCost;
     echo(json_encode($response));
 }
 

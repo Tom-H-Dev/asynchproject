@@ -86,9 +86,7 @@ public class ArmyManager : MonoBehaviour
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
             ResourceUpdateResponse response = JsonUtility.FromJson<ResourceUpdateResponse>(webRequest.downloadHandler.text);
-            Debug.Log(response.serverMessage);
 
             peasantAmount.text = response.peasant.ToString();
             knightAmount.text = response.knight.ToString();
@@ -118,12 +116,10 @@ public class ArmyManager : MonoBehaviour
 
         MultipartFormDataSection entery = new("json", json);
         formData.Add(entery);
-        Debug.Log("REQUEST JSON:\n" + json);
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
             BuyTroopsResponse response = JsonUtility.FromJson<BuyTroopsResponse>(webRequest.downloadHandler.text);
             if (response.serverMessage == "Troops bought!")
             {
@@ -136,6 +132,12 @@ public class ArmyManager : MonoBehaviour
                 goldAmount.text = "Gold: " + response.gold;
                 lumberAmount.text = "Lumber: " + response.lumber;
                 manaAmount.text = "Mana: " + response.mana;
+
+                peasantInput.text = "0";
+                knightInput.text = "0";
+                archerInput.text = "0";
+                mageInput.text = "0";
+                catapultInput.text = "0";
             }
             else noResourceMessage.text = response.noresource;
         }
@@ -157,14 +159,12 @@ public class ArmyManager : MonoBehaviour
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
             LogOutResponse response = JsonUtility.FromJson<LogOutResponse>(webRequest.downloadHandler.text);
             if (response.serverMessage == "Succes")
             {
                 //Load main Scene
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
             }
-            Debug.Log(response.serverMessage);
         }
         requestAsync = null;
     }
