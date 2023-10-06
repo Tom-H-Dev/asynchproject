@@ -58,7 +58,6 @@ public class LoginScreen : MonoBehaviour
                 requestAsync = LoginAsync();
                 StartCoroutine(requestAsync);
             }
-            Debug.Log("Login Works");
         });
         debugGameActionButton.RegisterCallback<ClickEvent>(evt =>
         {
@@ -88,9 +87,7 @@ public class LoginScreen : MonoBehaviour
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
             CreateAccountResponse response = JsonUtility.FromJson<CreateAccountResponse>(webRequest.downloadHandler.text);
-            Debug.Log(response.serverMessage);
         }
         requestAsync = null;
     }
@@ -141,9 +138,7 @@ public class LoginScreen : MonoBehaviour
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log(webRequest.downloadHandler.text);
             GameResponse response = JsonUtility.FromJson<GameResponse>(webRequest.downloadHandler.text);
-            Debug.Log(response.serverMessage);
         }
         requestAsync = null;
     }
