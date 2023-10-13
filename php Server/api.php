@@ -31,7 +31,10 @@ switch($request->action){
         return;
     case "upgrade_generator":
         UpgradeGenerator($request);
-        return;    
+        return;
+    case "find_new_opponent":
+        FindNewOpponent($request);
+        return;     
     default:
         $response->serverMessage = "No valid server action";
         echo(json_encode($response));
@@ -456,5 +459,68 @@ function UpgradeGenerator($request){
 
     $response->serverMessage = "Upgrade!";
     echo(json_encode($response));
+}
+
+function FindNewOpponent($request){
+    global $response;
+    require_once("connect.php");
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+    $id = $row["id"];
+    $username = $row["username"];
+
+    //$sql = "SELECT id, username, Gold, Lumber, Mana, Peasent, Knight, Archer, Mage, Catapult FROM users";
+    //$result = $conn->query($sql);
+    
+    
+    $sql = "SELECT id, username, Gold, Lumber, Mana FROM users ORDER BY RAND() LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+
+    // Check if the query was successful
+    if ($stmt) {
+        // Fetch the random ID
+        $row = $stmt->fetch(PDO:: FETCH_ASSOC); 
+        $randomID = $row['id'];
+        $IDName = $row['username'];
+        $enemyGold = $row['Gold'];
+        $enemyLumber = $row['Lumber'];
+        $enemyMana = $row['Mana'];
+    }
+
+    //get a random id
+    //Check if not self
+    //Check if the user has been attacked or not
+    //Check if the latest user is the same as the current user
+    //if so find new opponent
+    //get the stats of that random user
+    //return stats
+
+    $response->serverMessage = "Find New Opponent.";
+    $response->latestOpponentID = $randomID;
+    $response->opponentName = $IDName;
+    $response->opponentGold = $enemyGold / 10;    
+    $response->opponentLumber = $enemyLumber / 10;
+    $response->opponentMana = $enemyMana / 10;
+    
+    echo(json_encode($response));
+}
+
+function BattleOpponent($request){
+
+}
+
+function FailedBattle($request){
+    
 }
 ?>
