@@ -46,7 +46,7 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator UpgradeResourceGenerator()
     {
-        FindNewOpponentReq request = new();
+        FindNewOpponentRequest request = new();
         request.token = GameManager.instance.token;
 
         List<IMultipartFormSection> formData = new();
