@@ -486,12 +486,16 @@ function FindNewOpponent($request){
     $sql = "SELECT id, username, Gold, Lumber, Mana FROM users ORDER BY RAND() LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC); 
 
     // Check if the query was successful
     if ($stmt) {
         // Fetch the random ID
-        $row = $stmt->fetch(PDO:: FETCH_ASSOC); 
         $randomID = $row['id'];
+        if ($randomID == $request->latestOpponentID && $randomID == $id && $row['hasBeenAttacked'] == 1){
+            FindNewOpponent($request);
+            return;
+        }
         $IDName = $row['username'];
         $enemyGold = $row['Gold'];
         $enemyLumber = $row['Lumber'];
@@ -511,7 +515,7 @@ function FindNewOpponent($request){
     $response->opponentName = $IDName;
     $response->opponentGold = $enemyGold / 10;    
     $response->opponentLumber = $enemyLumber / 10;
-    $response->opponentMana = $enemyMana / 10;
+    $response->opponentMana = $enemyMana / 10;  
     
     echo(json_encode($response));
 }

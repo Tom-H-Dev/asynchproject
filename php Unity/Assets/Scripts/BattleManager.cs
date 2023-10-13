@@ -22,12 +22,8 @@ public class BattleManager : MonoBehaviour
 
     [Header("Player Stats")]
     private string nothing;
+    private int latestOpponentID = 0;
 
-
-    private void OnEnable()
-    {
-        
-    }
 
     public void FindNewOpponent()
     {
@@ -48,6 +44,7 @@ public class BattleManager : MonoBehaviour
     {
         FindNewOpponentRequest request = new();
         request.token = GameManager.instance.token;
+        request.latestOpponentID = latestOpponentID;
 
         List<IMultipartFormSection> formData = new();
         string json = JsonUtility.ToJson(request);
@@ -68,6 +65,7 @@ public class BattleManager : MonoBehaviour
                 _goldRecieveAmount.text = "Gold: " + response.opponentGold;
                 _lumberRecieveAmount.text = "Lumber: " + response.opponentLumber;
                 _manaRecieveAmount.text = "Mana: " + response.opponentMana;
+                latestOpponentID = response.latestOpponentID;
             }
         }
         requestAsync = null;
@@ -90,7 +88,7 @@ public class FindNewOpponentRequest
 {
     public string action = "find_new_opponent";
     public string token;
-    public string latestOpponentID;   
+    public int latestOpponentID;   
 }
 
 
@@ -98,7 +96,7 @@ public class FindNewOpponentRequest
 public class FindNewOpponentResponse
 {
     public string serverMessage;
-    public string latestOpponentID;
+    public int latestOpponentID;
 
     public string opponentName;
 
