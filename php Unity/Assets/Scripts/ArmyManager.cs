@@ -22,6 +22,8 @@ public class ArmyManager : MonoBehaviour
     public TextMeshProUGUI knightAmount, archerAmount, mageAmount, catapultAmount;
     private int _peasant, _knight, _archer, _mage, _catapult;
     public TMP_InputField peasantInput, knightInput, archerInput, mageInput, catapultInput;
+    [SerializeField] private TextMeshProUGUI peasantBattle, knightBattle, archerBattle, mageBattle, catapultBattle;
+
     [Header("Order")]
     public TextMeshProUGUI totalOrderAmount;
     [Header("BuyPrices")]
@@ -94,6 +96,12 @@ public class ArmyManager : MonoBehaviour
             mageAmount.text = response.mage.ToString();
             catapultAmount.text = response.catapult.ToString();
 
+            peasantBattle.text = "Peasant: " + response.peasant;
+            knightBattle.text = "Knight: " + response.knight;
+            archerBattle.text = "Archer: " + response.archer;
+            mageBattle.text = "Mage: " + response.mage;
+            catapultBattle.text = "Catapult: " + response.catapult;
+
             goldAmount.text = "Gold: " + response.gold;
             lumberAmount.text = "Lumber: " + response.lumber;
             manaAmount.text = "Mana: " + response.mana;
@@ -128,6 +136,12 @@ public class ArmyManager : MonoBehaviour
                 archerAmount.text = response.archer.ToString();
                 mageAmount.text = response.mage.ToString();
                 catapultAmount.text = response.catapult.ToString();
+
+                peasantBattle.text = "Peasant: " + response.peasant;
+                knightBattle.text = "Knight: " + response.knight;
+                archerBattle.text = "Archer: " + response.archer;
+                mageBattle.text = "Mage: " + response.mage;
+                catapultBattle.text = "Catapult: " + response.catapult;
 
                 goldAmount.text = "Gold: " + response.gold;
                 lumberAmount.text = "Lumber: " + response.lumber;

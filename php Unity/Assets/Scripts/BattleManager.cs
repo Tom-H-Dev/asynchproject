@@ -25,6 +25,11 @@ public class BattleManager : MonoBehaviour
     private int latestOpponentID = 0;
 
 
+    private void Start()
+    {
+        FindNewOpponent();
+    }
+
     public void FindNewOpponent()
     {
         if (requestAsync == null)

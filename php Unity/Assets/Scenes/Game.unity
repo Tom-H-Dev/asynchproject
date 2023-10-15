@@ -11881,6 +11881,11 @@ MonoBehaviour:
   archerInput: {fileID: 1483457070}
   mageInput: {fileID: 580722249}
   catapultInput: {fileID: 540072911}
+  peasantBattle: {fileID: 990359452}
+  knightBattle: {fileID: 1793841773}
+  archerBattle: {fileID: 1265189080}
+  mageBattle: {fileID: 91295843}
+  catapultBattle: {fileID: 1708559723}
   totalOrderAmount: {fileID: 1084152557}
   _goldPrice: 0
   _lumberPrice: 0
