@@ -17,7 +17,6 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _lumberRecieveAmount, _manaRecieveAmount;
     [Space]
     [SerializeField] private TextMeshProUGUI _enemyNameTroops;
-    private string _secondPartTroops = " Troops";
     [SerializeField] private TextMeshProUGUI _peasantEnemyAmount, _knightEnemyAmount, _archerEnemyAmount, _mageEnemyAmount, _catapultEnemyAmount;
 
     [Header("Player Stats")]
@@ -82,7 +81,6 @@ public class BattleManager : MonoBehaviour
             }
         }
         requestAsync = null;
-
     }
 
     //Find new opponent (Goes through the database and find another player by ID that you haven't found yet (stored in list) and display 10% of resources that you can steal)
