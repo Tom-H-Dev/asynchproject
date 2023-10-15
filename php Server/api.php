@@ -483,7 +483,7 @@ function FindNewOpponent($request){
     //$result = $conn->query($sql);
     
     
-    $sql = "SELECT id, username, Gold, Lumber, Mana FROM users ORDER BY RAND() LIMIT 1";
+    $sql = "SELECT id, username, Gold, Lumber, Mana, Peasent, Knight, Archer, Mage, Catapult, hasBeenAttacked FROM users ORDER BY RAND() LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $row = $stmt->fetch(PDO:: FETCH_ASSOC); 
@@ -500,6 +500,11 @@ function FindNewOpponent($request){
         $enemyGold = $row['Gold'];
         $enemyLumber = $row['Lumber'];
         $enemyMana = $row['Mana'];
+        $enemyPeasant = $row['Peasent'];
+        $enemyKnight = $row['Knight'];
+        $enemyArcher = $row['Archer'];
+        $enemyMage = $row['Mage'];
+        $enemyCatapult = $row['Catapult'];
     }
 
     //get a random id
@@ -515,7 +520,13 @@ function FindNewOpponent($request){
     $response->opponentName = $IDName;
     $response->opponentGold = $enemyGold / 10;    
     $response->opponentLumber = $enemyLumber / 10;
-    $response->opponentMana = $enemyMana / 10;  
+    $response->opponentMana = $enemyMana / 10; 
+    
+    $response->opponentPeasant = $enemyPeasant / 2;
+    $response->opponentKnight = $enemyKnight / 2;
+    $response->opponentArcher = $enemyArcher / 2;
+    $response->opponentMage = $enemyMage / 2;
+    $response->opponentCatapult = $enemyCatapult / 2;
     
     echo(json_encode($response));
 }

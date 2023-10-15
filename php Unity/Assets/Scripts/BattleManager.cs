@@ -61,10 +61,18 @@ public class BattleManager : MonoBehaviour
             if (response.serverMessage == "Find New Opponent.")
             {
                 _enemyName.text = response.opponentName;
+                _enemyNameTroops.text = response.opponentName + "'s Troops";
 
                 _goldRecieveAmount.text = "Gold: " + response.opponentGold;
                 _lumberRecieveAmount.text = "Lumber: " + response.opponentLumber;
                 _manaRecieveAmount.text = "Mana: " + response.opponentMana;
+                
+                _peasantEnemyAmount.text = "Peasant: " + response.opponentPeasant;
+                _knightEnemyAmount.text = "Knight: " + response.opponentKnight;
+                _archerEnemyAmount.text = "Archer: " + response.opponentArcher;
+                _mageEnemyAmount.text = "Mage: " + response.opponentMage;
+                _catapultEnemyAmount.text = "Catapult: " + response.opponentCatapult;
+
                 latestOpponentID = response.latestOpponentID;
             }
         }
