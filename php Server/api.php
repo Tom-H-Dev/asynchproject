@@ -6,6 +6,7 @@ if (!isset($_POST["json"])){
 $request = json_decode($_POST["json"]);
 
 $response = new STDClass();
+$publicEnemyID;
 
 switch($request->action){
     case "create_account":
@@ -492,6 +493,7 @@ function FindNewOpponent($request){
     if ($stmt) {
         // Fetch the random ID
         $randomID = $row['id'];
+        $publicEnemyID = $randomID;
         if ($randomID == $request->latestOpponentID && $randomID == $id && $row['hasBeenAttacked'] == 1){
             FindNewOpponent($request);
             return;
@@ -506,14 +508,6 @@ function FindNewOpponent($request){
         $enemyMage = $row['Mage'];
         $enemyCatapult = $row['Catapult'];
     }
-
-    //get a random id
-    //Check if not self
-    //Check if the user has been attacked or not
-    //Check if the latest user is the same as the current user
-    //if so find new opponent
-    //get the stats of that random user
-    //return stats
 
     $response->serverMessage = "Find New Opponent.";
     $response->latestOpponentID = $randomID;
@@ -532,7 +526,32 @@ function FindNewOpponent($request){
 }
 
 function BattleOpponent($request){
+    global $response;
+    require_once("connect.php");
 
+    $stmt = $conn->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindValue(":token", $request->token);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    if ($row == null){
+        $response->serverMessage = "token not found";
+        echo(json_encode($response));
+        return;
+    }
+
+    $id = $row["id"];
+    $peasant = $row['Peasant'];
+    $knight = $row['Knight'];
+    $Archer = $row['Archer'];
+    $Mage = $row['Mage'];
+    $Catapult = $row['Catapult'];
+
+    //Peanant Attack = 1
+    //Knight Attack = 2
+    //Archer Attack = 2
+    //Mage attack = 3
+    //Catapult Attack = 4
 }
 
 function FailedBattle($request){
