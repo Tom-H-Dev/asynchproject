@@ -548,11 +548,11 @@ function BattleOpponent($request){
     $Catapult = $row['Catapult'];
 
     
-    $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-    $stmt->vindValue(":id", $publicEnemyID);
-    $stmt->execute();
+    $opstmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
+    $opstmt->vindValue(":id", $publicEnemyID);
+    $opstmt->execute();
 
-    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    $row = $opstmt->fetch(PDO:: FETCH_ASSOC);
     $enemyId = $row["id"];
     $enemyPeasant = $row['Peasant'];
     $enemyKnight = $row['Knight'];
@@ -574,7 +574,7 @@ function BattleOpponent($request){
         //Add recources
         //Remove troops
         //set has been attacked bool
-        
+
         $response->serverMessage = "Battle Lost.";
     }
 
