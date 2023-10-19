@@ -541,17 +541,44 @@ function BattleOpponent($request){
     }
 
     $id = $row["id"];
-    $peasant = $row['Peasant'];
-    $knight = $row['Knight'];
+    $Peasant = $row['Peasant'];
+    $Knight = $row['Knight'];
     $Archer = $row['Archer'];
     $Mage = $row['Mage'];
     $Catapult = $row['Catapult'];
 
-    //Peanant Attack = 1
-    //Knight Attack = 2
-    //Archer Attack = 2
-    //Mage attack = 3
-    //Catapult Attack = 4
+    
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
+    $stmt->vindValue(":id", $publicEnemyID);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO:: FETCH_ASSOC);
+    $enemyId = $row["id"];
+    $enemyPeasant = $row['Peasant'];
+    $enemyKnight = $row['Knight'];
+    $enemyArcher = $row['Archer'];
+    $enemyMage = $row['Mage'];
+    $enemyCatapult = $row['Catapult'];
+
+    $totalOwnPower = $Peasant * 1 + $Knight * 2 + $Archer * 2 + $Mage * 3 + $Catapult * 4;
+    $totalEnemyPower = $enemyPeasant * 1 + $enemyKnight * 2 + $enemyArcher * 2 + $enemyMage * 3 + $enemyCatapult * 4;
+
+    if ($totalOwnPower > $totalEnemyPower){
+        //Add recources
+        //Remove troops
+        //set has been attacked bool
+        
+        $response->serverMessage = "Battle Won!";
+    }
+    else{
+        //Add recources
+        //Remove troops
+        //set has been attacked bool
+        
+        $response->serverMessage = "Battle Lost.";
+    }
+
+    echo(json_encode($response));
 }
 
 function FailedBattle($request){
