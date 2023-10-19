@@ -110,6 +110,7 @@ public class BattleManager : MonoBehaviour
             }
         }
         requestAsync = null;
+        FindNewOpponent();
     }
 
     //Find new opponent (Goes through the database and find another player by ID that you haven't found yet (stored in list) and display 10% of resources that you can steal)
