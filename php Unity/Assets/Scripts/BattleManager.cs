@@ -33,7 +33,7 @@ public class BattleManager : MonoBehaviour
     {
         if (requestAsync == null)
         {
-            requestAsync = UpgradeResourceGenerator();
+            requestAsync = FindNewOpponentCoroutine();
             StartCoroutine(requestAsync);
         }
     }
@@ -44,7 +44,7 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    private IEnumerator UpgradeResourceGenerator()
+    private IEnumerator FindNewOpponentCoroutine()
     {
         FindNewOpponentRequest request = new();
         request.token = GameManager.instance.token;
@@ -83,15 +83,39 @@ public class BattleManager : MonoBehaviour
         requestAsync = null;
     }
 
+    private IEnumerator BattleCurrentOpponentCoroutine()
+    {
+        BattleOpponentRequest request = new();
+        request.token = GameManager.instance.token;
+
+        List<IMultipartFormSection> formData = new();
+        string json = JsonUtility.ToJson(request);
+
+        MultipartFormDataSection entery = new("json", json);
+        formData.Add(entery);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, formData))
+        {
+            yield return webRequest.SendWebRequest();
+            Debug.Log(webRequest.downloadHandler.text);
+            BattleOpponentResponse response = JsonUtility.FromJson<BattleOpponentResponse>(webRequest.downloadHandler.text);
+            Debug.Log(response.serverMessage);
+            if (response.serverMessage == "Battle Won!")
+            {
+
+            }
+            if (response.serverMessage == "Battle Lost.")
+            {
+
+            }
+        }
+        requestAsync = null;
+    }
+
     //Find new opponent (Goes through the database and find another player by ID that you haven't found yet (stored in list) and display 10% of resources that you can steal)
     //Pop up of when you are attacked ((new bool in database) and show how many troops and resources you have lost(and remove them from database))
     //Check if player has been attacked and skip those players
-    //Battle button where you attack the other player
-    //Get a percentage of the enemy troops and display those
-    //display the name of the opponent by id
     // when you attack play small simple animation to show that you are attacking
-    //check your troops vs enemy troops and check who wins.
-    //Set attack and defense values and combine those when attacking and check who will win.
 }
 
 [System.Serializable]
@@ -120,4 +144,28 @@ public class FindNewOpponentResponse
     public int opponentArcher;
     public int opponentMage;
     public int opponentCatapult;
+}
+
+[System.Serializable]
+public class BattleOpponentRequest
+{
+    public string action = "battle_opponent";
+    public string token;
+}
+
+
+[System.Serializable]
+public class BattleOpponentResponse
+{
+    public string serverMessage;
+
+    public int gold;
+    public int lumber;
+    public int mana;
+
+    public int peasant;
+    public int knight;
+    public int archer;
+    public int mage;
+    public int catapult;
 }
