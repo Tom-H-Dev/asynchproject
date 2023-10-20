@@ -561,15 +561,6 @@ function FindNewOpponent($request){
 
 function BattleOpponent($request){
     global $response;
-    global $publicEnemyID;
-    global $publicEnemyGold;
-    global $publicEnemyLumber;
-    global $publicEnemyMana;
-    global $publicEnemyPeasant;
-    global $publicEnemyKnight;
-    global $publicEnemyArcher;
-    global $publicEnemyMage;
-    global $publicEnemyCatapult;
 
     require_once("connect.php");
 
@@ -596,23 +587,23 @@ function BattleOpponent($request){
 
     
     $opstmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-    $opstmt->bindValue(":id", $publicEnemyID);
+    $opstmt->bindValue(":id", $request->latestOpponentID);
     $opstmt->execute();
 
-    $row = $opstmt->fetch(PDO:: FETCH_ASSOC);
-    if ($row == null){
-        echo("public id " . $publicEnemyID);
+    $oprow = $opstmt->fetch(PDO:: FETCH_ASSOC);
+    if ($oprow == null){
+        echo("null");
         return;
     }
-    $enemyId = $row["id"];
-    $enemyPeasant = $row['Peasent'];
-    $enemyKnight = $row['Knight'];
-    $enemyArcher = $row['Archer'];
-    $enemyMage = $row['Mage'];
-    $enemyCatapult = $row['Catapult'];
-    $enemyGold = $row['Gold'];
-    $enemyLumber = $row['Lumber'];
-    $enemyMana = $row['Mana'];
+    $enemyId = $oprow["id"];
+    $enemyPeasant = $oprow['Peasent'];
+    $enemyKnight = $oprow['Knight'];
+    $enemyArcher = $oprow['Archer'];
+    $enemyMage = $oprow['Mage'];
+    $enemyCatapult = $oprow['Catapult'];
+    $enemyGold = $oprow['Gold'];
+    $enemyLumber = $oprow['Lumber'];
+    $enemyMana = $oprow['Mana'];
 
 
     $totalOwnPower = $Peasant * 1 + $Knight * 2 + $Archer * 2 + $Mage * 3 + $Catapult * 4;
@@ -622,15 +613,15 @@ function BattleOpponent($request){
         //Add recources self
         //Remove troops self
         $stmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana, Peasent = :Peasent, Knight = :Knight, Archer = :Archer, Mage = :Mage, Catapult = :Catapult WHERE token = :token");
-        $stmt->bindValue(":Gold", $ownGold + $publicEnemyGold);
-        $stmt->bindValue(":Lumber", $ownLumber + $publicEnemyLumber);
-        $stmt->bindValue(":Mana", $ownMana + $publicEnemyMana);
+        $stmt->bindValue(":Gold", $ownGold + $enemyGold / 10);
+        $stmt->bindValue(":Lumber", $ownLumber + $enemyLumber / 10);
+        $stmt->bindValue(":Mana", $ownMana + $enemyMana / 10);
 
-        $stmt->bindValue(":Peasent", 100);
-        $stmt->bindValue(":Knight", 100);
-        $stmt->bindValue(":Archer", 100);
-        $stmt->bindValue(":Mage", 100);
-        $stmt->bindValue(":Catapult", 100);
+        $stmt->bindValue(":Peasent", 0);
+        $stmt->bindValue(":Knight", 0);
+        $stmt->bindValue(":Archer", 0);
+        $stmt->bindValue(":Mage", 0);
+        $stmt->bindValue(":Catapult", 0);
 
         $stmt->bindValue(":token", $request->token);
         $stmt->execute();
@@ -638,26 +629,26 @@ function BattleOpponent($request){
         //Add recources enemy
         //Remove troops enemy
         $opstmt = $conn->prepare("UPDATE users SET Gold = :Gold, Lumber = :Lumber, Mana = :Mana, Peasent = :Peasent, Knight = :Knight, Archer = :Archer, Mage = :Mage, Catapult = :Catapult, hasBeenAttacked = :hasBeenAttacked WHERE id = :id");
-        $opstmt->bindValue(":Gold", $enemyGold - $publicEnemyGold);
-        $opstmt->bindValue(":Lumber", $enemyLumber - $publicEnemyLumber);
-        $opstmt->bindValue(":Mana", $enemyMana - $publicEnemyMana);
+        $opstmt->bindValue(":Gold", $enemyGold - $enemyGold / 10);
+        $opstmt->bindValue(":Lumber", $enemyLumber - $enemyLumber / 10);
+        $opstmt->bindValue(":Mana", $enemyMana - $enemyMana / 10);
 
-        $opstmt->bindValue(":Peasent",$enemyPeasant - $publicEnemyPeasant);
-        $opstmt->bindValue(":Knight", $enemyKnight - $publicEnemyKnight);
-        $opstmt->bindValue(":Archer", $enemyArcher - $publicEnemyArcher);
-        $opstmt->bindValue(":Mage", $enemyMage - $publicEnemyMage);
-        $opstmt->bindValue(":Catapult", $enemyCatapult - $publicEnemyCatapult);
+        $opstmt->bindValue(":Peasent",$enemyPeasant - $enemyPeasant / 2);
+        $opstmt->bindValue(":Knight", $enemyKnight - $enemyKnight / 2);
+        $opstmt->bindValue(":Archer", $enemyArcher - $enemyArcher / 2);
+        $opstmt->bindValue(":Mage", $enemyMage - $enemyMage / 2);
+        $opstmt->bindValue(":Catapult", $enemyCatapult - $enemyCatapult / 2);
 
         //set has been attacked bool
         $opstmt->bindValue(":hasBeenAttacked", 1);
-        $opstmt->bindValue(":id", $publicEnemyID);
+        $opstmt->bindValue(":id", $request->latestOpponentID);
         $opstmt->execute();
         
         $response->serverMessage = "Battle Won!";
 
-        $response->gold = $row['Gold'] + $publicEnemyGold;
-        $response->lumber = $row['Lumber'] + $publicEnemyLumber;
-        $response->mana = $row['Mana'] + $publicEnemyMana;
+        $response->gold = $ownGold + $enemyGold / 10;
+        $response->lumber = $ownLumber + $enemyLumber / 10;
+        $response->mana = $ownMana + $enemyMana / 10;
 
         $response->peasant = 0;
         $response->knight = 0;
@@ -669,11 +660,11 @@ function BattleOpponent($request){
         //Remove own troops 
         $stmt = $conn->prepare("UPDATE users SET Peasent = :Peasent, Knight = :Knight, Archer = :Archer, Mage = :Mage, Catapult = :Catapult WHERE token = :token");
 
-        $stmt->bindValue(":Peasent", 100);
-        $stmt->bindValue(":Knight", 100);
-        $stmt->bindValue(":Archer", 100);
-        $stmt->bindValue(":Mage", 100);
-        $stmt->bindValue(":Catapult", 100);
+        $stmt->bindValue(":Peasent", 0);
+        $stmt->bindValue(":Knight", 0);
+        $stmt->bindValue(":Archer", 0);
+        $stmt->bindValue(":Mage", 0);
+        $stmt->bindValue(":Catapult", 0);
 
         $stmt->bindValue(":token", $request->token);
         $stmt->execute();
@@ -682,7 +673,7 @@ function BattleOpponent($request){
         //set has been attacked bool
         $opstmt = $conn->prepare("UPDATE users SET hasBeenAttacked = :hasBeenAttacked WHERE id = :id");
         $opstmt->bindValue(":hasBeenAttacked", 1);
-        $opstmt->bindValue(":id", $publicEnemyID);
+        $opstmt->bindValue(":id", $request->latestOpponentID);
         $opstmt->execute();
 
         $response->serverMessage = "Battle Lost.";
@@ -693,7 +684,7 @@ function BattleOpponent($request){
         $response->mage = 0;
         $response->catapult = 0;
     }
-    $response->debugID = $publicEnemyID;
+    
     echo(json_encode($response));
 }
 ?>

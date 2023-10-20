@@ -94,6 +94,7 @@ public class BattleManager : MonoBehaviour
     {
         BattleOpponentRequest request = new();
         request.token = GameManager.instance.token;
+        request.latestOpponentID = latestOpponentID;
 
         List<IMultipartFormSection> formData = new();
         string json = JsonUtility.ToJson(request);
@@ -182,6 +183,8 @@ public class BattleOpponentRequest
 {
     public string action = "battle_opponent";
     public string token;
+
+    public int latestOpponentID;
 }
 
 
