@@ -15617,6 +15617,19 @@ MonoBehaviour:
   _archerEnemyAmount: {fileID: 1029186242}
   _mageEnemyAmount: {fileID: 1462477245}
   _catapultEnemyAmount: {fileID: 472830236}
+  _gold: {fileID: 1320608311}
+  _lumber: {fileID: 1068476847}
+  _mana: {fileID: 576046195}
+  _peasantBattle: {fileID: 990359452}
+  _peasantArmy: {fileID: 1916046510}
+  _knightBattle: {fileID: 1793841773}
+  _knightArmy: {fileID: 936930569}
+  _archerBattle: {fileID: 1265189080}
+  _archerArmy: {fileID: 1907096651}
+  _mageBattle: {fileID: 91295843}
+  _mageArmy: {fileID: 330691844}
+  _catapultBattle: {fileID: 1708559723}
+  _catapultArmy: {fileID: 752696992}
 --- !u!1 &2133275201
 GameObject:
   m_ObjectHideFlags: 0

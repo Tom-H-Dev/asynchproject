@@ -20,7 +20,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _peasantEnemyAmount, _knightEnemyAmount, _archerEnemyAmount, _mageEnemyAmount, _catapultEnemyAmount;
 
     [Header("Player Stats")]
-    private string nothing;
+    [SerializeField] private TextMeshProUGUI _gold;
+    [SerializeField] private TextMeshProUGUI _lumber, _mana;
+    [SerializeField] private TextMeshProUGUI _peasantBattle, _peasantArmy, _knightBattle, _knightArmy, _archerBattle, _archerArmy, _mageBattle, _mageArmy, _catapultBattle, _catapultArmy;
     private int latestOpponentID = 0;
 
 
@@ -40,7 +42,11 @@ public class BattleManager : MonoBehaviour
 
     public void BattleCurrentOpponent()
     {
-
+        if (requestAsync == null)
+        {
+            requestAsync = BattleCurrentOpponentCoroutine();
+            StartCoroutine(requestAsync);
+        }
     }
 
 
@@ -70,7 +76,7 @@ public class BattleManager : MonoBehaviour
                 _goldRecieveAmount.text = "Gold: " + response.opponentGold;
                 _lumberRecieveAmount.text = "Lumber: " + response.opponentLumber;
                 _manaRecieveAmount.text = "Mana: " + response.opponentMana;
-                
+
                 _peasantEnemyAmount.text = "Peasant: " + response.opponentPeasant;
                 _knightEnemyAmount.text = "Knight: " + response.opponentKnight;
                 _archerEnemyAmount.text = "Archer: " + response.opponentArcher;
@@ -81,6 +87,7 @@ public class BattleManager : MonoBehaviour
             }
         }
         requestAsync = null;
+
     }
 
     private IEnumerator BattleCurrentOpponentCoroutine()
@@ -100,14 +107,35 @@ public class BattleManager : MonoBehaviour
             Debug.Log(webRequest.downloadHandler.text);
             BattleOpponentResponse response = JsonUtility.FromJson<BattleOpponentResponse>(webRequest.downloadHandler.text);
             Debug.Log(response.serverMessage);
+
+            _peasantArmy.text = response.peasant.ToString();
+            _knightArmy.text = response.knight.ToString();
+            _archerArmy.text = response.archer.ToString();
+            _mageArmy.text = response.mage.ToString();
+            _catapultArmy.text = response.catapult.ToString();
+
+            _peasantBattle.text = "Peasant: " + response.peasant;
+            _knightBattle.text = "Knight: " + response.knight;
+            _archerBattle.text = "Archer: " + response.archer;
+            _mageBattle.text = "Mage: " + response.mage;
+            _catapultBattle.text = "Catapult: " + response.catapult;
+
             if (response.serverMessage == "Battle Won!")
             {
+                _gold.text = "Gold: " + response.gold;
+                _lumber.text = "Lumber: " + response.lumber;
+                _mana.text = "Mana: " + response.mana;
 
+                //TODO: Pop up won
+                Debug.Log("You won!");
             }
             if (response.serverMessage == "Battle Lost.")
             {
-
+                //TODO: Pop up you lost
+                Debug.Log("You lost. :(");
             }
+
+            GameManager.instance.debugID = response.debugID;
         }
         requestAsync = null;
         FindNewOpponent();
@@ -124,7 +152,7 @@ public class FindNewOpponentRequest
 {
     public string action = "find_new_opponent";
     public string token;
-    public int latestOpponentID;   
+    public int latestOpponentID;
 }
 
 
@@ -139,12 +167,14 @@ public class FindNewOpponentResponse
     public int opponentGold;
     public int opponentLumber;
     public int opponentMana;
-    
+
     public int opponentPeasant;
     public int opponentKnight;
     public int opponentArcher;
     public int opponentMage;
     public int opponentCatapult;
+
+    public int debugID;
 }
 
 [System.Serializable]
@@ -169,4 +199,6 @@ public class BattleOpponentResponse
     public int archer;
     public int mage;
     public int catapult;
+
+    public int debugID;
 }

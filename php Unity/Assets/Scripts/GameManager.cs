@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     public int lastTickTimeStamp;
 
+    public int debugID;
+
     private void Awake()
     {
         if (instance != null)
