@@ -25,7 +25,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _peasantBattle, _peasantArmy, _knightBattle, _knightArmy, _archerBattle, _archerArmy, _mageBattle, _mageArmy, _catapultBattle, _catapultArmy;
     private int latestOpponentID = 0;
 
-
+    [Header("Win Screen")]
+    [SerializeField] private GameObject _popUp;
+    [SerializeField] private TextMeshProUGUI _winLossText;
+    [SerializeField] private TextMeshProUGUI _resourceBetterLuckText;
     private void Start()
     {
         FindNewOpponent();
@@ -128,6 +131,11 @@ public class BattleManager : MonoBehaviour
                 _mana.text = "Mana: " + response.mana;
 
                 //TODO: Pop up won
+
+                _popUp.SetActive(true);
+
+                _winLossText.text = "You Won!";
+                _resourceBetterLuckText.text = "Gold Won: " + response.goldwon + "\n" + "Lumber Won: " + response.lumberwon + "\n" + "Mana Won: " + response.manawon + "\n"; 
                 Debug.Log("You won!");
             }
             if (response.serverMessage == "Battle Lost.")
@@ -196,6 +204,10 @@ public class BattleOpponentResponse
     public int gold;
     public int lumber;
     public int mana;
+
+    public int goldwon;
+    public int lumberwon;
+    public int manawon;
 
     public int peasant;
     public int knight;

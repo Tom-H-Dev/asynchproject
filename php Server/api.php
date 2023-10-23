@@ -505,12 +505,18 @@ function FindNewOpponent($request){
     $id = $row["id"];
     $username = $row["username"];
 
-    //$sql = "SELECT id, username, Gold, Lumber, Mana, Peasent, Knight, Archer, Mage, Catapult FROM users";
-    //$result = $conn->query($sql);
     
     
-    $sql = "SELECT id, username, Gold, Lumber, Mana, Peasent, Knight, Archer, Mage, Catapult, hasBeenAttacked FROM users ORDER BY RAND() LIMIT 1";
+    $sql = "SELECT id, username, Gold, Lumber, Mana, Peasent, Knight, Archer, Mage, Catapult, hasBeenAttacked 
+    FROM users 
+    WHERE hasBeenAttacked != 1 AND id != :latestOpponentID AND id != :id AND Peasent != 0 
+    AND Peasent != 1 AND Knight != 0 AND Knight != 1 AND Archer != 0 AND Archer != 1 
+    AND Mage != 0 AND Mage != 1 AND Catapult != 0 AND Catapult != 1   
+    ORDER BY RAND() LIMIT 1";
+
     $stmt = $conn->prepare($sql);
+    $stmt->bindValue(":latestOpponentID", $request->latestOpponentID);
+    $stmt->bindValue(":id", $id);
     $stmt->execute();
     $row = $stmt->fetch(PDO:: FETCH_ASSOC); 
 
@@ -519,11 +525,7 @@ function FindNewOpponent($request){
         // Fetch the random ID
         $randomID = $row['id'];
         $publicEnemyID = $randomID;
-        if ($randomID == $request->latestOpponentID && $randomID == $id && $row['hasBeenAttacked'] == 1){
-            // If no troops also
-            FindNewOpponent($request);
-            return;
-        }
+
         $IDName = $row['username'];
         $enemyGold = $row['Gold'];
         $publicEnemyGold = $enemyGold / 10;
@@ -650,6 +652,10 @@ function BattleOpponent($request){
         $response->gold = $ownGold + $enemyGold / 10;
         $response->lumber = $ownLumber + $enemyLumber / 10;
         $response->mana = $ownMana + $enemyMana / 10;
+
+        $response->goldwon = $enemyGold / 10;
+        $response->lumberwon = $enemyLumber / 10;
+        $response->manawon = $enemyMana / 10;
 
         $response->peasant = 0;
         $response->knight = 0;
