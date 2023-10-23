@@ -141,6 +141,11 @@ public class BattleManager : MonoBehaviour
             if (response.serverMessage == "Battle Lost.")
             {
                 //TODO: Pop up you lost
+                _popUp.SetActive(true);
+
+                _winLossText.text = "You Lost.";
+                _resourceBetterLuckText.text = "Better Luck Next Time!";
+
                 Debug.Log("You lost. :(");
             }
 
