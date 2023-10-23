@@ -520,6 +520,7 @@ function FindNewOpponent($request){
         $randomID = $row['id'];
         $publicEnemyID = $randomID;
         if ($randomID == $request->latestOpponentID && $randomID == $id && $row['hasBeenAttacked'] == 1){
+            // If no troops also
             FindNewOpponent($request);
             return;
         }
